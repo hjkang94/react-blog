@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import styled from '@emotion/styled';
 import { Button } from 'components/Button';
 
@@ -53,7 +54,7 @@ const Input = styled.input`
 const Actions = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly;
   flex-direction: row;
 `;
 
@@ -62,21 +63,50 @@ interface Props {
 }
 
 export const Form = ({ onClose }: Props) => {
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+
+  const registerPost = () => {
+    if (!title || !body) return;
+
+    fetch('https://jsonplaceholder.typicode.com/posts', {
+      method: 'POST',
+      body: JSON.stringify({
+        userId: 1,
+        title,
+        body,
+      }),
+      headers: {
+        'Content-type': 'application/json; charset=UTF-8',
+      },
+    })
+      .then((res) => res.json())
+      .then((json) => {
+        console.log(json);
+        if (typeof onClose === 'function') {
+          onClose();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+  }
+
   return (
     <Container>
       <Background />
       <Contents>
-        <Title>블로그 글 등록</Title>
+        <Title>글 등록</Title>
         <InputGroup>
           <Label>제목: </Label>
-          <Input />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} />
         </InputGroup>
         <InputGroup>
           <Label>내용: </Label>
-          <Input />
+          <Input value={body} onChange={(e) => setBody(e.target.value)} />
         </InputGroup>
         <Actions>
-          <Button label="등록" onClick={onClose} />
+          <Button label="등록" onClick={registerPost} />
           <Button label="취소" color="#6e6e6e" onClick={onClose} />
         </Actions>
       </Contents>
